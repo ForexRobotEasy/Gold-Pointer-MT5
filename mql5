@@ -1,0 +1,88 @@
+
+//+------------------------------------------------------------------+
+//|                                                   Gold Pointer MT5|
+//|                                             forexroboteasy.com   |
+//|                                                 Forex Robot Easy |
+//+------------------------------------------------------------------+
+
+//--- Indicator initialization function
+int OnInit()
+{
+    //--- Set indicator buffers
+    SetIndexBuffer(0, Buffer1);
+    SetIndexStyle(0, DRAW_ARROW);
+    SetIndexArrow(0, 233);
+    
+    //--- Set indicator parameters
+    IndicatorDigits(Digits);
+
+    //--- Set indicator labels
+    IndicatorShortName('Gold Pointer MT5');
+
+    //--- Initialize variables
+    int counted_bars = IndicatorCounted();
+    if(counted_bars < 0) 
+        return -1;
+
+    //--- Check for chart updates
+    int limit = Bars - counted_bars;
+    if(limit > Bars || limit < 0) 
+        return -1;
+
+    //--- Main loop
+    for(int i = limit; i < Bars; i++)
+    {
+        //--- Perform technical and mathematical analysis
+        double buySignal = CheckBuySignal(i);
+        double sellSignal = CheckSellSignal(i);
+
+        //--- Display arrows for confirmed signals
+        if(buySignal > 0)
+            Buffer1[i] = Low[i] - 10 * Point;
+        if(sellSignal > 0)
+            Buffer1[i] = High[i] + 10 * Point;
+    }
+
+    //--- Return value of prev_calculated for next call
+    return Bars;
+}
+
+//--- Custom function to identify profitable entry points for BUY orders
+double CheckBuySignal(int index)
+{
+    //--- Perform technical and mathematical analysis
+    double signal = TechnicalAnalysis(index) + MathematicalAnalysis(index);
+    
+    //--- Return result
+    return signal;
+}
+
+//--- Custom function to identify profitable entry points for SELL orders
+double CheckSellSignal(int index)
+{
+    //--- Perform technical and mathematical analysis
+    double signal = TechnicalAnalysis(index) - MathematicalAnalysis(index);
+    
+    //--- Return result
+    return signal;
+}
+
+//--- Custom function for technical analysis
+double TechnicalAnalysis(int index)
+{
+    //--- Perform technical analysis calculations
+    double result = iMA(NULL, 0, 14, 0, MODE_EMA, PRICE_CLOSE, index) - iMA(NULL, 0, 28, 0, MODE_EMA, PRICE_CLOSE, index);
+    
+    //--- Return result
+    return result;
+}
+
+//--- Custom function for mathematical analysis
+double MathematicalAnalysis(int index)
+{
+    //--- Perform mathematical analysis calculations
+    double result = (iHigh(NULL, 0, index) + iLow(NULL, 0, index)) / 2;
+    
+    //--- Return result
+    return result;
+}
